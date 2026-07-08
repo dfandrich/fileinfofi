@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "fileinfofi"
 description = "Dumps fileinfo.fi files created by Norton Utilities on MS-DOS"
-version = "0.1dev"
+version = "2dev"
 readme = "README.md"
 authors = [{name = "Dan Fandrich", email = "dan@coneharvesters.com"}]
 license = {text = "GPLv2+"}
