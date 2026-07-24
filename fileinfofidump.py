@@ -74,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(args=argv)
     rc = 0
     for fn in args.files:
-        rc = rc ^ fileinfofidump(fn, args.l)
+        rc |= fileinfofidump(fn, args.l)
     return rc
 
 
