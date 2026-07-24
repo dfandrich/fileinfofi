@@ -48,6 +48,16 @@ options.
 The return status is 0 on success, or nonzero if an error was encountered (such
 as a fileinfo.fi file couldn't be found or read).
 
+## Testing
+
+Run the unit tests with the command:
+
+    python -m unittest
+
+or:
+
+    pytest
+
 ## Author
 
 Copyright © 2026 Dan Fandrich <dan@coneharvesters.com>
