@@ -51,11 +51,17 @@ class FileinfoFi(KaitaiStruct):
                 raise kaitaistruct.ValidationNotEqualError(b"\x50\x4E\x43\x49\x00", self.magic, self._io, u"/types/header/seq/0")
             self.num_records = self._io.read_u2le()
             self.checksum = self._io.read_u2le()
-            self.bitmask = self._io.read_bytes(128)
+            self.record_in_use = []
+            for i in range(1024):
+                self.record_in_use.append(self._io.read_bits_int_be(1) != 0)
+
 
 
         def _fetch_instances(self):
             pass
+            for i in range(len(self.record_in_use)):
+                pass
+
 
 
     class Record(KaitaiStruct):

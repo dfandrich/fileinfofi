@@ -26,19 +26,14 @@ class FileinfoFiEx(fileinfo_fi.FileinfoFi):
 
     def validate_header_checksum(self) -> bool:
         """Validate that the header checksum is correct."""
+        # Must reconstitute the original integers to calculate the header checksum
+        bitmask_sum = sum(2 ** (7 - (i % 8)) for i, v in enumerate(self.header.record_in_use) if v)
         checksum = (
             sum(self.header.magic)
             + (self.header.num_records >> 8) + (self.header.num_records % 256)
-            + sum(self.header.bitmask)
+            + bitmask_sum
         )
         return checksum == self.header.checksum
-
-    def is_record_valid(self, index: int) -> bool:
-        """Check if the given record bitmask is marked as valid."""
-        bindex = index // 8
-        if bindex >= len(self.header.bitmask):
-            return False
-        return bool(self.header.bitmask[bindex] & 1 << (7 - index % 8))
 
 
 def fileinfofidump(fn: str) -> int:
@@ -62,7 +57,7 @@ def fileinfofidump(fn: str) -> int:
         return 1
 
     for i, f in enumerate(fi.records):
-        if fi.is_record_valid(i):
+        if fi.header.record_in_use[i]:
             print(f.file_name, f.comment.decode(DEFAULT_ENCODING))
     return 0
 
