@@ -10,6 +10,9 @@ Hopefully, the .ksy file will eventually end up in
 https://github.com/kaitai-io/kaitai_struct_formats
 """
 
+from __future__ import annotations
+
+import argparse
 import sys
 
 import fileinfo_fi
@@ -36,7 +39,7 @@ class FileinfoFiEx(fileinfo_fi.FileinfoFi):
         return checksum == self.header.checksum
 
 
-def fileinfofidump(fn: str) -> int:
+def fileinfofidump(fn: str, lower: bool = False) -> int:
     """Dump the contents of the given fileinfo.fi file."""
     try:
         fi = FileinfoFiEx.from_file(fn)
@@ -58,14 +61,20 @@ def fileinfofidump(fn: str) -> int:
 
     for i, f in enumerate(fi.records):
         if fi.header.record_in_use[i]:
-            print(f.file_name, f.comment.decode(DEFAULT_ENCODING))
+            file_name = f.file_name if not lower else f.file_name.lower()
+            print(file_name, f.comment.decode(DEFAULT_ENCODING))
     return 0
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description='Output contents of a fileinfo.fi file')
+    _ = parser.add_argument('-l', action='store_true', help='output file names in lower case')
+    _ = parser.add_argument('files', nargs='*', help='paths to fileinfo.fi file(s)',
+                            default=['fileinfo.fi'])
+    args = parser.parse_args(args=argv)
     rc = 0
-    for fn in sys.argv[1:] if len(sys.argv) > 1 else ['fileinfo.fi']:
-        rc = rc ^ fileinfofidump(fn)
+    for fn in args.files:
+        rc = rc ^ fileinfofidump(fn, args.l)
     return rc
 
 

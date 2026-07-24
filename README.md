@@ -19,7 +19,8 @@ from Github with:
 The program requires the `kaitaistruct` package. The file parser is built from
 a fileinfo.fi definition in [Kaitai Struct](https://kaitai.io/) format using
 the Kaitai Struct Compiler, but all generated files are included in this
-repository so nothing beyond `kaitaistruct` is required to run it.
+repository so nothing beyond `kaitaistruct` is required to run it. The Kaitai
+Struct Compiler is only needed if the .ksy file is ever changed.
 
 ## Usage
 
@@ -39,6 +40,10 @@ To dump the contents of a fileinfo.fi file, run:
 To dump the contents of a fileinfo.fi file in the current directory, just run:
 
     fileinfofidump
+
+The `-l` option outputs the file names in lower case. No more options may be
+given after `--` is encountered. `-h` shows a brief description of these
+options.
 
 The return status is 0 on success, or nonzero if an error was encountered (such
 as a fileinfo.fi file couldn't be found or read).
