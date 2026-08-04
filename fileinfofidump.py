@@ -24,25 +24,10 @@ import kaitaistruct
 DEFAULT_ENCODING = 'IBM437'
 
 
-class FileinfoFiEx(fileinfo_fi.FileinfoFi):
-    """FileinfoFi parser with extra methods."""
-
-    def validate_header_checksum(self) -> bool:
-        """Validate that the header checksum is correct."""
-        # Must reconstitute the original integers to calculate the header checksum
-        bitmask_sum = sum(2 ** (7 - (i % 8)) for i, v in enumerate(self.header.record_in_use) if v)
-        checksum = (
-            sum(self.header.magic)
-            + (self.header.num_records >> 8) + (self.header.num_records % 256)
-            + bitmask_sum
-        )
-        return checksum == self.header.checksum
-
-
 def fileinfofidump(fn: str, lower: bool = False) -> int:
     """Dump the contents of the given fileinfo.fi file."""
     try:
-        fi = FileinfoFiEx.from_file(fn)
+        fi = fileinfo_fi.FileinfoFi.from_file(fn)
     except OSError as e:
         print(f'{type(e).__name__}: {e!s}', file=sys.stderr)
         return 1
@@ -55,7 +40,7 @@ def fileinfofidump(fn: str, lower: bool = False) -> int:
               file=sys.stderr)
         return 1
 
-    if not fi.validate_header_checksum():
+    if fi.header_checksum != fi.header.checksum:
         print('Error: file failed checksum validation', file=sys.stderr)
         return 1
 

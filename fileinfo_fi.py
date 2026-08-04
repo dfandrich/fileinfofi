@@ -37,6 +37,14 @@ class FileinfoFi(KaitaiStruct):
             pass
             self.records[i]._fetch_instances()
 
+        _ = self.record_checksum_reduction
+        if hasattr(self, '_m_record_checksum_reduction'):
+            pass
+            for i in range(len(self._m_record_checksum_reduction)):
+                pass
+                self._m_record_checksum_reduction[i]._fetch_instances()
+
+
 
     class Header(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):
@@ -79,5 +87,76 @@ class FileinfoFi(KaitaiStruct):
         def _fetch_instances(self):
             pass
 
+
+    class RecordChecksumIter(KaitaiStruct):
+        def __init__(self, idx, _io, _parent=None, _root=None):
+            super(FileinfoFi.RecordChecksumIter, self).__init__(_io)
+            self._parent = _parent
+            self._root = _root
+            self.idx = idx
+            self._read()
+
+        def _read(self):
+            pass
+
+
+        def _fetch_instances(self):
+            pass
+
+        @property
+        def prev(self):
+            if hasattr(self, '_m_prev'):
+                return self._m_prev
+
+            self._m_prev = (0 if self.idx == 0 else self._parent.record_checksum_reduction[self.idx - 1].res)
+            return getattr(self, '_m_prev', None)
+
+        @property
+        def res(self):
+            """Add one additional checksum byte from 8 record_in_use bits. The
+            calculation is done in groups of 8 to reduce the amount of recursion
+            necessary to calculate the entire record_in_use checksum, which
+            otherwise exceeds the maximum Python recursion limit.
+            """
+            if hasattr(self, '_m_res'):
+                return self._m_res
+
+            self._m_res = self.prev + ((((((((self._root.header.record_in_use[self.idx * 8 + 0] << 7) + (self._root.header.record_in_use[self.idx * 8 + 1] << 6)) + (self._root.header.record_in_use[self.idx * 8 + 2] << 5)) + (self._root.header.record_in_use[self.idx * 8 + 3] << 4)) + (self._root.header.record_in_use[self.idx * 8 + 4] << 3)) + (self._root.header.record_in_use[self.idx * 8 + 5] << 2)) + (self._root.header.record_in_use[self.idx * 8 + 6] << 1)) + (self._root.header.record_in_use[self.idx * 8 + 7] << 0))
+            return getattr(self, '_m_res', None)
+
+
+    @property
+    def header_checksum(self):
+        """Calculate the expected header checksum from the header data. This is the
+        value that should be found in header.checksum in a valid file.
+        """
+        if hasattr(self, '_m_header_checksum'):
+            return self._m_header_checksum
+
+        self._m_header_checksum = ((((((KaitaiStream.byte_array_index(self.header.magic, 0) + KaitaiStream.byte_array_index(self.header.magic, 1)) + KaitaiStream.byte_array_index(self.header.magic, 2)) + KaitaiStream.byte_array_index(self.header.magic, 3)) + self.header.num_records // 256) + self.header.num_records % 256) + self.record_checksum) % 65536
+        return getattr(self, '_m_header_checksum', None)
+
+    @property
+    def record_checksum(self):
+        """Partial sum used in calculating header_checksum.
+        """
+        if hasattr(self, '_m_record_checksum'):
+            return self._m_record_checksum
+
+        self._m_record_checksum = self.record_checksum_reduction[len(self._root.header.record_in_use) // 8 - 1].res
+        return getattr(self, '_m_record_checksum', None)
+
+    @property
+    def record_checksum_reduction(self):
+        """Structure used in calculating record_checksum.
+        """
+        if hasattr(self, '_m_record_checksum_reduction'):
+            return self._m_record_checksum_reduction
+
+        self._m_record_checksum_reduction = []
+        for i in range(len(self._root.header.record_in_use) // 8):
+            self._m_record_checksum_reduction.append(FileinfoFi.RecordChecksumIter(i, self._io, self, self._root))
+
+        return getattr(self, '_m_record_checksum_reduction', None)
 
 
