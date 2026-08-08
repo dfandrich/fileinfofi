@@ -88,3 +88,5 @@ blanks-before-imports = 1
 project-includes = [
     "**/*.py*",
 ]
+preset = "strict"
+check-unannotated-defs = true
