@@ -3,8 +3,8 @@
 This file type is created by the Norton Utilities 4 fi.exe program on MS-DOS to
 hold extended file comments for DOS 8.3 file names.
 
-fileinfo_fi.py is created with the command:
-    kaitai-struct-compiler -t python fileinfo_fi.ksy
+norton_fileinfo_fi.py is created with the command:
+    kaitai-struct-compiler -t python norton_fileinfo_fi.ksy
 
 Hopefully, the .ksy file will eventually end up in
 https://github.com/kaitai-io/kaitai_struct_formats
@@ -15,9 +15,9 @@ from __future__ import annotations
 import argparse
 import sys
 
-import fileinfo_fi
-
 import kaitaistruct
+
+import norton_fileinfo_fi
 
 
 # The code page in use when the file descriptions were created.
@@ -30,7 +30,7 @@ DEFAULT_ENCODING = 'CP437'
 def fileinfofidump(fn: str, lower: bool, encoding: str) -> int:
     """Dump the contents of the given fileinfo.fi file."""
     try:
-        fi = fileinfo_fi.FileinfoFi.from_file(fn)
+        fi = norton_fileinfo_fi.NortonFileinfoFi.from_file(fn)
     except OSError as e:
         print(f'{type(e).__name__}: {e!s}', file=sys.stderr)
         return 1
@@ -43,7 +43,7 @@ def fileinfofidump(fn: str, lower: bool, encoding: str) -> int:
               file=sys.stderr)
         return 1
 
-    if fi.header_checksum != fi.header.checksum:
+    if fi.calculated_header_checksum != fi.header.checksum:
         print('Error: file failed checksum validation', file=sys.stderr)
         return 1
 
