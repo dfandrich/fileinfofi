@@ -19,7 +19,6 @@ import kaitaistruct
 
 import norton_fileinfo_fi
 
-
 # The code page in use when the file descriptions were created.
 # CP437 (a.k.a. IBM437) is a good default because 1) it's common (the U.S.A.
 # default), and 2) it has a mapping for all 256 octets, so the conversion will
